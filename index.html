@@ -1473,19 +1473,49 @@
     </div>
     <div id="rim-live-container"></div>
 
-window.addEventListener('load', function() {
-    new spine.SpinePlayer("Joanne-container", { // 容器 ID 可以保持不變
-        // ==========================================
-        // 🚀 換上你從 TrickcalViewer 抓下來的新檔名
-        // ==========================================
-        skelUrl: "Joanne.skel",        // 改成新角色的骨骼檔名
-        atlasUrl: "Joanne.atlas",      // 改成新角色的圖集檔名
+<!-- ==============================================================
+        🌟 看板娘 喬菲(Joanne) 專屬容器 (已融合主網頁左下角懸浮樣式)
+        ============================================================== -->
+    <div id="Joanne-container" style="position: fixed !important; bottom: 15px !important; left: 15px !important; width: 150px !important; height: 150px !important; z-index: 2147483647 !important;"></div>
+
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof spine === 'undefined') {
+                console.error("Spine library 未載入");
+                return;
+            }
+
+            // 載入全新使徒：喬菲 (Joanne)
+            new spine.SpinePlayer("Joanne-container", {
+                skelUrl: "Joanne.skel.bytes",
+                atlasUrl: "Joanne.atlas.txt",
+                alpha: true,                          // 允許背景透明
+                backgroundColor: "#00000000",
+                
+                showControls: true,                   // 🔥 保持開啟播放控制列，方便教主在網頁左下角直接點選動作
+                
+                premultipliedAlpha: false,
+                skin: "Normal",
+                
+                // 不填寫固定的 animation/animations 參數，
+                // Player 會自動在控制列抓取 Joanne 骨架內所有的可用動作（包含 Touch、Happy、Attack 等）
+                
+                viewport: { 
+                    transitionTime: 0,
+                    padLeft: "5%",
+                    padRight: "5%",
+                    padTop: "5%",
+                    padBottom: "5%"
+                },
+                
+                success: function (player) {
+                    console.log("喬菲 Joanne 載入成功！控制面板已解鎖。");
+                }, 
         
-        alpha: true,
-        backgroundColor: "#00000000",
-        showControls: true,              // 🔥 開啟控制列，你就能直接在網頁上看到這隻新角色的所有動作清單！
-        premultipliedAlpha: false,
-        skin: "Normal",                  // 遊戲官方通常預設都是 Normal
-        viewport: { transitionTime: 0 }
-    });
+                error: function (player, reason) {
+                    console.error("Spine 渲染錯誤 (請檢查 Joanne 檔案路徑與大小寫):", reason);
+                } 
+            }); 
+        });
+    </script>
 });
