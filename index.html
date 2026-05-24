@@ -1524,53 +1524,17 @@ window.addEventListener('load', function() {
     });
 });
 
-    window.addEventListener('load', function() {
-    if (typeof spine === 'undefined') {
-        console.error("Spine library 未載入");
-        return;
-    }
-
-    new spine.SpinePlayer("rim-live-container", {
-        skelUrl: "Joanne.skel",      // 替換為喬安的骨架檔
-        atlasUrl: "Joanne.atlas",    // 替換為喬安的 atlas 檔
-        alpha: true,                 
-        backgroundColor: "#00000000",
-        showControls: false,         
-        premultipliedAlpha: false,
-        
-        // 如果預設外觀或動畫名稱與預設不同，可能需要取消註解並修改這兩行：
-        // skin: "default",          
-        // animation: "idle", 
-        
-        viewport: { 
-            transitionTime: 0        
-        },
-        
-        success: function (player) {
-            console.log("Spine 載入成功！");
-            
-            // 你可以在瀏覽器主控台 (Console) 查看喬安實際包含哪些動畫名稱
-            console.log("可用動畫清單:", player.skeleton.data.animations.map(a => a.name));
-            
-            // 將這裡替換為喬安真實的動畫名稱
-            const animations = ["anim_1", "anim_2", "anim_3"]; 
-            let currentIndex = 1; 
-
-            function playNextAnimation() {
-                if (animations.length === 0) return;
-                const nextAnim = animations[currentIndex % animations.length];
-                player.skeleton.setToSetupPose(); 
-                player.animationState.setAnimation(0, nextAnim, true);
-                currentIndex++;
-            }
-
-            // 若要自動輪播動畫，請取消註解下方這行
-            // setInterval(playNextAnimation, 5000);
-        },
-        error: function (player, reason) {
-            console.error("Spine 渲染錯誤:", reason);
-        }
-    });
+   // 修改為正確的檔案路徑
+new spine.SpinePlayer("rim-live-container", {
+    skelUrl: "Joanne.skel",   // 修改這裡：原為 Rim.skel.bytes
+    atlasUrl: "Joanne.atlas", // 修改這裡：原為 Rim.atlas.txt
+    alpha: true,
+    backgroundColor: "#00000000",
+    showControls: false,
+    premultipliedAlpha: true, // 注意：通常 Spine 導出的 JSON/Binary 需要設為 true
+    skin: "default",          // 若不確定 Skin 名稱，可填 "default"
+    animation: "idle",        // 修改這裡：請確認您的 .skel 內確實有名為 "Happy_4" 的動畫，若無請改為 "idle"
+    // ... 後續設定
 });
 </body>
 </html>
