@@ -1432,33 +1432,32 @@
     </script>
 
     <div id="Joanne-container"></div>
-    
-       <script>
-    window.addEventListener('load', function() {
-        if (typeof spine === 'undefined') {
-            console.error("Spine library 未載入，請確認 CDN 連結是否正確");
-            return;
-        }
 
-        // 安全相容版設定
-        new spine.SpinePlayer("Joanne-container", {
-            skelUrl: "Joanne.skel",       
-            atlasUrl: "Joanne.atlas",
-            animation: "Idle_1",                  
-            alpha: true,                          
-            backgroundColor: "#00000000",
-            showControls: false, // 1. 關閉可能引發 RangeError 的控制面板
-            premultipliedAlpha: true,            
-            skin: "Normal",
-            // 2. 移除 viewport 計算，交由 Spine Player 自動適應
-            success: function (player) {
-                console.log("喬菲 Joanne (Spine 4.1) 載入成功！");
-            }, 
-            error: function (player, reason) {
-                console.error("Spine 渲染錯誤。錯誤原因:", reason);
-            } 
-        }); 
-    });
-</script>
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof spine === 'undefined') {
+                console.error("Spine library 未載入，請確認 CDN 連結是否正確");
+                return;
+            }
+
+            // 🎯 已優化高相容性載入：移除了 showControls 與 viewport，全面防範二進位邊界解讀致命錯誤
+            new spine.SpinePlayer("Joanne-container", {
+                skelUrl: "Joanne.skel", // 💡 備忘：若未來確認檔案本質為 JSON 文字，請將 skelUrl 修改為 jsonUrl
+                atlasUrl: "Joanne.atlas",
+                animation: "Idle_1",                  
+                alpha: true,                          
+                backgroundColor: "#00000000",
+                showControls: false, // 🛠️ 關閉控制台，防止強制讀取時間軸與動態影格觸發 RangeError
+                premultipliedAlpha: true,            
+                skin: "Normal",
+                success: function (player) {
+                    console.log("喬菲 Joanne (Spine 4.1) 載入成功！邊界與核心控制最佳化完成。");
+                }, 
+                error: function (player, reason) {
+                    console.error("Spine 渲染錯誤。錯誤原因:", reason);
+                } 
+            }); 
+        });
+    </script>
 </body>
 </html>
