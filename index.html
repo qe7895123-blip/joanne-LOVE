@@ -1433,40 +1433,6 @@
 
     <div id="Joanne-container"></div>
 
-    <script>
-        window.addEventListener('load', function() {
-            if (typeof spine === 'undefined') {
-                console.error("Spine library 未載入，請確認 CDN 連結是否正確");
-                return;
-            }
 
-            // 🎯 使用獨立的隔離區塊，就算底層報 DataView 錯誤，也絕對不影響主網頁與存檔功能
-            try {
-                new spine.SpinePlayer("Joanne-container", {
-                    skelUrl: "Joanne.skel",       
-                    atlasUrl: "Joanne.atlas",
-                    animation: "Idle_1",                  
-                    alpha: true,                          
-                    backgroundColor: "#00000000",
-                    showControls: false, 
-                    premultipliedAlpha: true,            
-                    skin: "Normal",
-                    success: function (player) {
-                        console.log("喬菲 Joanne 載入成功！");
-                    }, 
-                    error: function (player, reason) {
-                        console.warn("Spine 播放器內部分析失敗，但不影響主網頁。原因:", reason);
-                    } 
-                });
-            } catch (spineError) {
-                // 攔截 RangeError，並在主控台打印低風險警告，不再觸發 window.onerror
-                console.warn("[Spine 沙盒防護] 攔截到二進位檔案解析錯誤，已自動隔離該組件:", spineError.message);
-                
-                // 隱藏報錯的容器，不影響畫面美觀
-                const jContainer = document.getElementById("Joanne-container");
-                if (jContainer) jContainer.style.display = "none";
-            }
-        });
-    </script>
 </body>
 </html>
