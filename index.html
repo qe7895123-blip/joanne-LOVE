@@ -1444,10 +1444,10 @@
             new spine.SpinePlayer("Joanne-container", {
                 skelUrl: "Joanne.skel.bytes",       // 修正 2：補上 .bytes 完整對應你在 GitHub Pages 上的真實檔名 🎯
                 atlasUrl: "Joanne.atlas.txt",
+                animation: "idle",                    // 🎯 建議加上這行，讓喬菲動起來！（若 idle 不對可以換成 loop）
                 alpha: true,                          // 允許背景透明
                 backgroundColor: "#00000000",
-                
-                showControls: true,                   // 保持開啟播放控制列，方便在網頁左下角直接點選動作
+                showControls: true,                  // 保持開啟控制列方便偵錯，上線後可改 false 隱藏
                 
                 premultipliedAlpha: false,
                 skin: "Normal",
