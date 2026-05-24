@@ -1432,7 +1432,43 @@
     </script>
 
     <div id="Joanne-container"></div>
-
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        // 確保 Spine 播放器腳本已成功載入
+        if (typeof spine !== 'undefined' && spine.SpinePlayer) {
+            new spine.SpinePlayer("Joanne-container", {
+                skelUrl: "./Joanne.skel",     // 👈 請替換為你實際的 .skel 檔案路徑
+                atlasUrl: "./Joanne.atlas",   // 👈 請替換為你實際的 .atlas 檔案路徑
+                animation: "idle",            // 預設播放的動作項目（若沒反應可嘗試改成 "wait" 或 "run"）
+                showControls: false,          // 隱藏下方的播放、暫停等控制列
+                alpha: true,                  // 啟用透明通道
+                backgroundColor: "#00000000", // 將背景設為完全透明
+                premultipliedAlpha: true,     // 嘟嘟臉模型一般使用 PMA 紋理，設為 true 避免邊緣出現黑邊
+                viewport: {
+                    x: 0,
+                    y: 0,
+                    width: 400,               // 骨骼視窗寬度調整
+                    height: 400,              // 骨骼視窗高度調整
+                    padLeft: "10%",
+                    padRight: "10%",
+                    padTop: "10%",
+                    padBottom: "10%",
+                    debugRender: false        // 設為 false 隱藏綠色骨骼線
+                },
+                success: function (player) {
+                    // 模型載入成功後，可以微調比例讓她在容器內完美顯示
+                    player.skeleton.scaleX = 0.4; 
+                    player.skeleton.scaleY = 0.4;
+                    // 如果位置歪了，可以透過這個微調 X、Y 軸偏移量
+                    player.skeleton.x = 0;
+                    player.skeleton.y = -50; 
+                }
+            });
+        } else {
+            console.warn("Spine Player 腳本載入失敗，請檢查 CDN 連線。");
+        }
+    });
+</script>
 
 </body>
 </html>
