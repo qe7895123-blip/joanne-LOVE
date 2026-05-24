@@ -565,11 +565,11 @@
             "avatar_米雪": "https://i.postimg.cc/qMFcxRYh/mi-xue.png",
             "avatar_綾": "https://i.postimg.cc/hPXTvnjd/ling.png",
             "avatar_羽伊": "https://i.postimg.cc/Fs6bVRqg/yu-yi.png",
-            "avatar_艾斯皮": "https://i.postimg.cc/BQz5B6yg/ai-si-pi.png",
+            "avatar_text_艾斯皮": "https://i.postimg.cc/BQz5B6yg/ai-si-pi.png",
             "avatar_艾琳娜": "https://i.postimg.cc/ncWKGz5w/ai-lin-na.png",
             "avatar_艾皮卡": "https://i.postimg.cc/gk7yHJ5K/ai-pi-ka.png",
             "avatar_艾舒爾": "https://i.postimg.cc/hPY81j6F/ai-shu-er.png",
-            "avatar_艾蜜莉雅": "https://i.postimg.cc/QdWQ4DG0/ai-mi-li-ya.png",
+            "avatar_開蜜莉雅": "https://i.postimg.cc/QdWQ4DG0/ai-mi-li-ya.png",
             "avatar_芙莉可": "https://i.postimg.cc/DzrqhczQ/fu-li-ke.png",
             "avatar_茱蜜": "https://i.postimg.cc/MTz1pjMv/zhu-mi.png",
             "avatar_莉茲": "https://i.postimg.cc/rsmWSXNg/li-zi.png",
@@ -1361,7 +1361,7 @@
                 btn.className = "px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-lg shadow-sm transition shrink-0 whitespace-nowrap";
             } else {
                 if (svgLogo) svgLogo.classList.remove('hidden');
-                if (logoutText) svgLogo.classList.remove('hidden');
+                if (logoutText) logoutText.classList.add('hidden'); // 🎯 修正：登出時精確隱藏登出文字
                 btn.className = "google-login-btn bg-white dark:bg-gray-700 rounded-lg p-2 flex items-center justify-center transition border border-gray-200 dark:border-gray-600 shrink-0";
             }
         }
@@ -1434,42 +1434,43 @@
     <div id="Joanne-container"></div>
 
     <script>
-       window.addEventListener('load', function() {
-    if (typeof spine === 'undefined') {
-        console.error("Spine library 未載入，請確認 CDN 連結是否正確");
-        return;
-    }
+        window.addEventListener('load', function() {
+            if (typeof spine === 'undefined') {
+                console.error("Spine library 未載入，請確認 CDN 連結是否正確");
+                return;
+            }
 
-    // 載入全新使徒：喬菲 (Joanne) - 已修正 4.1 版本與 PMA 設定
-    new spine.SpinePlayer("Joanne-container", {
-        skelUrl: "Joanne.skel.bytes",       
-        atlasUrl: "Joanne.atlas.txt",
-        animation: "Idle_1",                  // 🎯 解鎖正確動作！網頁載入後會自動播放待機動畫
-        alpha: true,                          // 允許背景透明
-        backgroundColor: "#00000000",
-        
-        showControls: true,                  // 保持開啟播放控制列，方便教主在左下角手動切換摸頭或戳戳動作
-        
-        premultipliedAlpha: true,            // 🎯 修正：配合 Atlas 設定改為 true，徹底消滅貼圖髒黑邊！
-        skin: "Normal",
-        
-        viewport: { 
-            transitionTime: 0,
-            padLeft: "10%",
-            padRight: "10%",
-            padTop: "10%",
-            padBottom: "10%"
-        },
-        
-        success: function (player) {
-            console.log("喬菲 Joanne (Spine 4.1) 完美載入成功！動作控制面板已解鎖。");
-        }, 
+            // 載入全新使徒：喬菲 (Joanne) - 已修正 4.1 版本與 PMA 設定
+            new spine.SpinePlayer("Joanne-container", {
+                skelUrl: "Joanne.skel.bytes",       
+                atlasUrl: "Joanne.atlas.txt",
+                animation: "Idle_1",                  // 🎯 解鎖正確動作！網頁載入後會自動播放待機動畫
+                alpha: true,                          // 允許背景透明
+                backgroundColor: "#00000000",
+                
+                showControls: true,                  // 保持開啟播放控制列，方便教主在左下角手動切換動作
+                
+                premultipliedAlpha: true,            // 🎯 修正：配合 Atlas 設定改為 true，徹底消滅貼圖髒黑邊！
+                skin: "Normal",
+                
+                viewport: { 
+                    transitionTime: 0,
+                    padLeft: "10%",
+                    padRight: "10%",
+                    padTop: "10%",
+                    padBottom: "10%"
+                },
+                
+                success: function (player) {
+                    console.log("喬菲 Joanne (Spine 4.1) 完美載入成功！動作控制面板已解鎖。");
+                }, 
 
-        error: function (player, reason) {
-            console.error("Spine 渲染錯誤，請確認 CDN 已經更換為 4.1 版本。錯誤原因:", reason);
-        } 
-    }); 
-});
+                error: function (player, reason) {
+                    console.error("Spine 渲染錯誤，請確認 CDN 已經更換為 4.1 版本。錯誤原因:", reason);
+                } 
+            }); 
+        });
     </script>
 </body>
 </html>
+
