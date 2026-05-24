@@ -1432,44 +1432,33 @@
     </script>
 
     <div id="Joanne-container"></div>
+    
+       <script>
+    window.addEventListener('load', function() {
+        if (typeof spine === 'undefined') {
+            console.error("Spine library 未載入，請確認 CDN 連結是否正確");
+            return;
+        }
 
-    <script>
-        window.addEventListener('load', function() {
-            if (typeof spine === 'undefined') {
-                console.error("Spine library 未載入，請確認 CDN 連結是否正確");
-                return;
-            }
-
-            // 載入全新使徒：喬菲 (Joanne) - 已完美對應本地 4.1.08 導出檔案
-            new spine.SpinePlayer("Joanne-container", {
-                skelUrl: "Joanne.skel",       
-                atlasUrl: "Joanne.atlas",
-                animation: "Idle_1",                  
-                alpha: true,                          
-                backgroundColor: "#00000000",
-                
-                showControls: true,                  
-                
-                premultipliedAlpha: true,            
-                skin: "Normal",
-                
-                viewport: { 
-                    transitionTime: 0,
-                    padLeft: "10%",
-                    padRight: "10%",
-                    padTop: "10%",
-                    padBottom: "10%"
-                },
-                
-                success: function (player) {
-                    console.log("喬菲 Joanne (Spine 4.1) 完美載入成功！動作控制面板已解鎖。");
-                }, 
-
-                error: function (player, reason) {
-                    console.error("Spine 渲染錯誤。錯誤原因:", reason);
-                } 
-            }); 
-        });
-    </script>
+        // 安全相容版設定
+        new spine.SpinePlayer("Joanne-container", {
+            skelUrl: "Joanne.skel",       
+            atlasUrl: "Joanne.atlas",
+            animation: "Idle_1",                  
+            alpha: true,                          
+            backgroundColor: "#00000000",
+            showControls: false, // 1. 關閉可能引發 RangeError 的控制面板
+            premultipliedAlpha: true,            
+            skin: "Normal",
+            // 2. 移除 viewport 計算，交由 Spine Player 自動適應
+            success: function (player) {
+                console.log("喬菲 Joanne (Spine 4.1) 載入成功！");
+            }, 
+            error: function (player, reason) {
+                console.error("Spine 渲染錯誤。錯誤原因:", reason);
+            } 
+        }); 
+    });
+</script>
 </body>
 </html>
