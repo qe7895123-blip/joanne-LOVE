@@ -17,10 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
     <link rel="stylesheet" href="https://unpkg.com/@esotericsoftware/spine-player@4.1/dist/spine-player.css">
-    <script src="https://unpkg.com/@esotericsoftware/spine-player@4.1/dist/iife/spine-player.js" crossorigin="anonymous"></script>
-    
+    <script src="https://unpkg.com/@esotericsoftware/spine-player@4.1/dist/iife/spine-player.js"></script>
     <style>
         :root {
             --user-bg-image: url('https://i.postimg.cc/fTJ36ZFT/CG-Schedule-Rim.png'); 
@@ -59,6 +57,9 @@
         .google-login-btn:hover { box-shadow: 0 3px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.12); background-color: #fcfcfc; }
         .unowned-avatar { opacity: 0.35; filter: grayscale(100%); }
 
+        /* ==============================================================
+            🌟 角色圖片外層容器與自動輪播、放大特效
+            ============================================================== */
         .char-avatar-container { 
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); 
             cursor: pointer; 
@@ -71,6 +72,7 @@
             user-select: none; 
         }
 
+        /* 僅在支援滑鼠的設備上啟用懸停放大 */
         @media (hover: hover) and (pointer: fine) {
             .char-avatar-container:hover { 
                 transform: scale(1.5); 
@@ -96,6 +98,7 @@
         .swap-avatars .avatar-alt {
             opacity: 1;
         }
+        /* 針對小圖示與蠟筆按鈕的懸停微放大特效 */
         .hover-scale {
             transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
@@ -103,10 +106,13 @@
         }
         @media (hover: hover) and (pointer: fine) {
             .hover-scale:hover {
-                transform: scale(1.15);
-                z-index: 10;
+                transform: scale(1.15); /* 放大 15% 恰到好處，既有動感又不會破版 */
+                z-index: 10; /* 確保放大的元素會蓋在別人上面 */
             }
         }
+        /* ==============================================================
+            💡 跑馬燈特效 (針對過長名稱優化)
+            ============================================================== */
         .marquee-box {
             display: block; width: 120px; overflow: hidden;
             white-space: nowrap; text-overflow: ellipsis;
@@ -114,6 +120,7 @@
         .char-card-wrapper:hover .marquee-box { text-overflow: clip; }
         .char-card-wrapper:hover .marquee-content {
             display: inline-block;
+            
         }
         @keyframes text-marquee {
             0%, 20% { transform: translateX(0); }
@@ -123,24 +130,34 @@
         .social-fixed { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
         .social-menu { display: none; margin-bottom: 8px; flex-direction: column; gap: 8px; }
         .social-fixed:hover .social-menu { display: flex; }
-
-        /* 喬菲專屬懸浮定位與響應式大小設定 */
-        #Joanne-container {
+        /* ==============================================================
+            🌟 看板娘 Rim 專屬容器
+            ============================================================== */
+        /* 手機版預設尺寸 (縮小 50%，並固定在左下角) */
+        #rim-live-container {
             position: fixed !important;
             bottom: 15px !important; 
             left: 15px !important;
-            width: 130px !important;   
-            height: 150px !important;  
+            width: 112px !important;   
+            height: 112px !important;  
             z-index: 2147483647 !important;
+            pointer-events: none;
         }
 
+        /* 電腦版/平板自動稍微放大 */
         @media (min-width: 768px) {
-            #Joanne-container {
+            #rim-live-container {
                 bottom: 20px !important;
                 left: 20px !important;
-                width: 180px !important; 
-                height: 200px !important;
+                width: 150px !important; 
+                height: 150px !important;
             }
+        }
+        
+        #rim-live-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
         }
     </style>
 </head>
@@ -335,7 +352,7 @@
                 position_front: "前排", position_middle: "中排", position_back: "後排", job_attacker: "輸出", job_defender: "肉盾", job_supporter: "輔助",
                 visit_count_prefix: "累計利用回数",
                 auth_offline_title: "當前狀態：單機模式", auth_offline_desc: "紀錄保存在此裝置", auth_online_title: "🟢 已連線雲端", auth_logout: "登出",
-                filter_title: "🔍 檔案篩選器", filter_search_placeholder: "搜尋坨坨...", filter_reset: "重置全部篩選", filter_display_mode: "👁️ 版面顯示：",
+                filter_title: "🔍 篩選器", filter_search_placeholder: "搜尋坨坨...", filter_reset: "重置全部篩選", filter_display_mode: "👁️ 版面顯示：",
                 filter_btn_all: "全部", filter_btn_show_all: "顯示全部", filter_btn_show_1: "僅第一層", filter_btn_show_2: "僅第二層", filter_btn_show_3: "僅第三層",
                 stats_toggle_hint: "點擊展開 / 收起", stats_layer_1_title: "🥇 第一層統計", stats_layer_2_title: "🥈 第二層統計", stats_layer_3_title: "🥉 第三層統計",
                 stats_layer_1_rule: "(每格+3%, 蠟筆×2)", stats_layer_2_rule: "(每格+4%, 蠟筆×4)", stats_layer_3_rule: "(每格+5%, 蠟筆×6)",
@@ -372,7 +389,7 @@
                 auth_offline_title: "現在の状態：オフラインモード", auth_offline_desc: "データはこの端末に保存されます", auth_online_title: "🟢 クラウドに接続中", auth_logout: "ログアウト",
                 filter_title: "🔍 フィルター", filter_search_placeholder: "使徒を検索...", filter_reset: "すべてのフィルターをリセット", filter_display_mode: "👁️ ボード表示：",
                 filter_btn_all: "すべて", filter_btn_show_all: "すべて表示", filter_btn_show_1: "1段階目のみ", filter_btn_show_2: "2段階目のみ", filter_btn_show_3: "3段階目のみ",
-                stats_toggle_hint: "クリックで展開 / 折りたたみ", stats_layer_1_title: "1段階目の統計", stats_layer_2_title: "🥈 2段階目の統計", stats_layer_3_title: "🥉 3段階目の統計",
+                stats_toggle_hint: "クリックで展開 / 折りたたみ", stats_layer_1_title: "🥇 1段階目の統計", stats_layer_2_title: "🥈 2段階目の統計", stats_layer_3_title: "🥉 3段階目の統計",
                 stats_layer_1_rule: "(各マス+3%, クレヨン×2)", stats_layer_2_rule: "(各マス+4%, クレヨン×4)", stats_layer_3_rule: "(各マス+5%, クレヨン×6)",
                 stats_global_bonus: "📊 全体ステータスバフ", stats_need_more_prefix: "必要クレヨン数: ", stats_need_more_suffix: " 本",
                 x_label: "公式 X", official_x_url: "https://x.com/trickcal_jp",
@@ -415,12 +432,17 @@
 
                 "天真": "Innocence", "冷靜": "Composed", "狂亂": "Madness", "活潑": "Vivacious", "憂鬱": "Depressed",
                 "魔女": "Witch", "獸人": "Werebeast", "龍族": "Dragon", "魔靈": "Elemental", "妖精": "Sprite", "精靈": "Elf", "幽靈": "Phantom", "???": "???",
+                
+                // ⚔️ 職業對應
                 "前排": "Front", "中排": "Middle", "後排": "Back", "輸出": "DPS", "肉盾": "Tank", "輔助": "Support",
+                
+                // 📊 屬性對應
                 "攻擊": "ATK", "防禦": "DEF", "血量": "HP", "爆擊": "CRIT", "爆抗": "CRIT RES", "全部": "All",
+                
                 "洛涅": "Rohne", "薇薇": "Vivi", "艾爾芬": "Erpin", "錫安": "xXionx", "伊弗利特": "Ifrit", "伊德": "ED", "佩佩": "Velvet", "佩斯塔": "Festa",
                 "修帕": "Shoupan", "傑德": "Jade", "優米": "Yomi", "劉美美": "Yumimi", "加薇雅": "Gabia", "卡洛特": "Kyarot", "卡蓮": "Carren", "喬菲": "Chopi",
                 "基狄恩": "Kidian", "大師2號": "Maestro Mk.2", "大木頭": "Big Wood", "奈雅": "Naia", "奶油": "Butter", "布蘭切": "Blanchte", "希拉": "Sylla", "希爾德": "Hilde",
-                "希瑟圖": "Sist", "希菲爾": "Silphir", "帕特拉": "Patula", "庫洛艾": "Chloe", "康娜": "Canna", "愛麗絲": "Alice", "斑尼": "Beni", "Speaki": "Speaki",
+                "希瑟圖": "Sist", "希菲爾": "Silphir", "帕特拉": "Patula", "庫洛艾": "Chloe", "康娜": "Canna", "愛麗絲": "Alice", "斑尼": "Beni", "斯皮奇": "Speaki",
                 "斯諾奇": "Snorky", "柯米": "Kommy", "桃桃": "Momo", "梅森": "Maison", "梅露娜": "Meluna", "海莉": "Haley", "珀榭": "Posher", "琳": "Rim",
                 "瑟琳娜": "Selene", "瑪約": "Mayo", "瑪麗": "Marie", "皮可菈": "Picora", "盧波": "Rufo", "米雪": "Mynx", "綾": "Aya", "羽伊": "Ui",
                 "艾斯皮": "Espi", "艾琳娜": "Elena", "艾皮卡": "Epica", "艾舒爾": "Ashur", "艾蜜莉雅": "Amelia", "芙莉可": "Fricle", "茱蜜": "Jubee", "莉茲": "Leets",
@@ -516,7 +538,7 @@
             "job_輔助": "https://i.postimg.cc/MG3zvCXJ/fu-zhu.png",
             "job_輸出": "https://i.postimg.cc/3wf3dsWH/shu-chu.png",
             
-            // 原始頭像 (🎯 已修正錯字)
+            // 原始頭像
             "avatar_洛涅": "https://i.postimg.cc/nL4vx1LN/luo-nie.png",
             "avatar_薇薇": "https://i.postimg.cc/gkx8jpJD/wei-wei.png",
             "avatar_艾爾芬": "https://i.postimg.cc/T3WV7xM4/ai-er-fen.png",
@@ -540,7 +562,7 @@
             "avatar_奶油": "https://i.postimg.cc/4Nybct8X/nai-you.png",
             "avatar_布蘭切": "https://i.postimg.cc/qBjxgQGM/bu-lan-qie.png",
             "avatar_希拉": "https://i.postimg.cc/pLnfGvMM/xi-la.png",
-            "avatar_開爾德": "https://i.postimg.cc/JzBN68Cr/xi-er-de.png",
+            "avatar_希爾德": "https://i.postimg.cc/JzBN68Cr/xi-er-de.png",
             "avatar_希瑟圖": "https://i.postimg.cc/y8SmQKC8/xi-se-tu.png",
             "avatar_希菲爾": "https://i.postimg.cc/XYyfHW64/xi-fei-er.png",
             "avatar_帕特拉": "https://i.postimg.cc/YS617xSf/pa-te-la.png",
@@ -565,11 +587,11 @@
             "avatar_米雪": "https://i.postimg.cc/qMFcxRYh/mi-xue.png",
             "avatar_綾": "https://i.postimg.cc/hPXTvnjd/ling.png",
             "avatar_羽伊": "https://i.postimg.cc/Fs6bVRqg/yu-yi.png",
-            "avatar_艾斯皮": "https://i.postimg.cc/BQz5B6yg/ai-si-pi.png", // 🎯 修正
+            "avatar_艾斯皮": "https://i.postimg.cc/BQz5B6yg/ai-si-pi.png",
             "avatar_艾琳娜": "https://i.postimg.cc/ncWKGz5w/ai-lin-na.png",
             "avatar_艾皮卡": "https://i.postimg.cc/gk7yHJ5K/ai-pi-ka.png",
             "avatar_艾舒爾": "https://i.postimg.cc/hPY81j6F/ai-shu-er.png",
-            "avatar_艾蜜莉雅": "https://i.postimg.cc/QdWQ4DG0/ai-mi-li-ya.png", // 🎯 修正
+            "avatar_艾蜜莉雅": "https://i.postimg.cc/QdWQ4DG0/ai-mi-li-ya.png",
             "avatar_芙莉可": "https://i.postimg.cc/DzrqhczQ/fu-li-ke.png",
             "avatar_茱蜜": "https://i.postimg.cc/MTz1pjMv/zhu-mi.png",
             "avatar_莉茲": "https://i.postimg.cc/rsmWSXNg/li-zi.png",
@@ -585,7 +607,7 @@
             "avatar_雷吉": "https://i.postimg.cc/BZY2JbqX/lei-ji.png",
             "avatar_馬爾": "https://i.postimg.cc/d1nrktrD/ma-er.png",
             "avatar_泰達": "https://i.postimg.cc/vH2GKCw8/tai-da.png",
-            "avatar_開爾德": "https://i.postimg.cc/tgt95LY0/ning-liu.png", // (對應清單暫留)
+            "avatar_寧琉": "https://i.postimg.cc/tgt95LY0/ning-liu.png",
             
             // Hover動態輪播頭像
             "hover_avatar_伊弗利特": "https://i.postimg.cc/zVmkt7qp/yi-fu-li-te2.png",
@@ -637,7 +659,7 @@
             "hover_avatar_羽伊": "https://i.postimg.cc/Czy4P7wP/yu-yi2.png",
             "hover_avatar_艾斯皮": "https://i.postimg.cc/nC81R2nw/ai-si-pi2.png",
             "hover_avatar_艾爾芬": "https://i.postimg.cc/rKSNv4pN/ai-er-fen2.png",
-            "hover_avatar_艾琳娜": "https://i.postimg.cc/BXWCYpJV/ai-lin-na2.png", // 🎯 修正
+            "hover_avatar_艾琳娜": "https://i.postimg.cc/BXWCYpJV/ai-lin-na2.png",
             "hover_avatar_艾皮卡": "https://i.postimg.cc/rK69njqZ/ai-pi-ka2.png",
             "hover_avatar_艾舒爾": "https://i.postimg.cc/SJWfw9KG/ai-shu-er2.png",
             "hover_avatar_艾蜜莉雅": "https://i.postimg.cc/ZCrx1Nqw/ai-mi-li-ya2.png",
@@ -684,13 +706,13 @@
             { name: "康娜", personality: "活潑", race: "精靈", position: "後排", job: "輸出", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
             { name: "斑尼", personality: "活潑", race: "獸人", position: "前排", job: "輸出", layer1: ["血量", "爆擊"], layer2: ["防禦", "爆擊", "爆抗"], layer3: ["攻擊", "防禦", "血量", "爆擊"] },
             { name: "盧波", personality: "活潑", race: "獸人", position: "中排", job: "輸出", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
-            { name: "茱蜜", personality: "活潑", race: "魔靈", position: "集中排", job: "輸出", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
+            { name: "茱蜜", personality: "活潑", race: "魔靈", position: "中排", job: "輸出", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
             { name: "卡蓮", personality: "活潑", race: "妖精", position: "後排", job: "輔助", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
             { name: "泰達", personality: "活潑", race: "精靈", position: "後排", job: "輸出", layer1: ["攻擊", "血量"], layer2: ["攻擊", "防禦", "爆抗"], layer3: ["攻擊", "防禦", "爆擊", "爆抗"] },
             { name: "瑪麗", personality: "活潑", race: "妖精", position: "中排", job: "輸出", layer1: ["攻擊", "血量"], layer2: ["攻擊", "防禦", "爆抗"], layer3: ["攻擊", "防禦", "爆擊", "爆抗"] },
             { name: "米雪", personality: "活潑", race: "獸人", position: "前排", job: "輸出", layer1: ["攻擊", "血量"], layer2: ["攻擊", "防禦", "爆抗"], layer3: ["攻擊", "防禦", "爆擊", "爆抗"] },
             { name: "伊德", personality: "冷靜", race: "精靈", position: "前排", job: "肉盾", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
-            { name: "開琳娜", personality: "冷靜", race: "精靈", position: "中排", job: "輸出", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
+            { name: "艾琳娜", personality: "冷靜", race: "精靈", position: "中排", job: "輸出", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
             { name: "佩佩", personality: "冷靜", race: "魔女", position: "前排", job: "肉盾", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
             { name: "希拉", personality: "冷靜", race: "魔靈", position: "後排", job: "輸出", layer1: ["攻擊", "血量"], layer2: ["攻擊", "防禦", "爆抗"], layer3: ["攻擊", "防禦", "爆擊", "爆抗"] },
             { name: "皮可菈", personality: "冷靜", race: "魔女", position: "後排", job: "輔助", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
@@ -714,7 +736,7 @@
             { name: "梅森", personality: "狂亂", race: "幽靈", position: "後排", job: "輸出", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
             { name: "伊弗利特", personality: "狂亂", race: "魔靈", position: "前排", job: "輸出", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
             { name: "劉美美", personality: "狂亂", race: "獸人", position: "後排", job: "輸出", layer1: ["血量", "爆擊"], layer2: ["防禦", "爆擊", "爆抗"], layer3: ["攻擊", "防禦", "血量", "爆擊"] },
-            { name: "護安", personality: "憂鬱", race: "幽靈", position: "後排", job: "輸出", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
+            { name: "錫安", personality: "憂鬱", race: "幽靈", position: "後排", job: "輸出", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
             { name: "基狄恩", personality: "憂鬱", race: "龍族", position: "前排", job: "輸出", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
             { name: "布蘭切", personality: "憂鬱", race: "魔靈", position: "中排", job: "輸出", layer1: ["血量", "爆擊"], layer2: ["防禦", "爆擊", "爆抗"], layer3: ["攻擊", "防禦", "血量", "爆擊"] },
             { name: "琳", personality: "憂鬱", race: "幽靈", position: "前排", job: "輸出", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
@@ -722,13 +744,13 @@
             { name: "希爾德", personality: "憂鬱", race: "精靈", position: "中排", job: "輔助", layer1: ["攻擊", "血量"], layer2: ["攻擊", "防禦", "爆抗"], layer3: ["攻擊", "防禦", "爆擊", "爆抗"] },
             { name: "柯米", personality: "憂鬱", race: "獸人", position: "前排", job: "肉盾", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
             { name: "珀榭", personality: "憂鬱", race: "魔女", position: "後排", job: "輔助", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
-            { name: "開舒爾", personality: "憂鬱", race: "妖精", position: "後排", job: "輸出", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
+            { name: "艾舒爾", personality: "憂鬱", race: "妖精", position: "後排", job: "輸出", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
             { name: "斯諾奇", personality: "憂鬱", race: "魔女", position: "前排", job: "肉盾", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
             { name: "貝魯", personality: "憂鬱", race: "幽靈", position: "中排", job: "輸出", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
             { name: "佩斯塔", personality: "憂鬱", race: "精靈", position: "前排", job: "輔助", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] },
             { name: "萊薇", personality: "憂鬱", race: "魔女", position: "中排", job: "輸出", layer1: ["爆擊", "爆抗"], layer2: ["血量", "爆擊", "爆抗"], layer3: ["防禦", "血量", "爆擊", "爆抗"] },
             { name: "喬菲", personality: "憂鬱", race: "獸人", position: "中排", job: "輸出", layer1: ["防禦", "爆抗"], layer2: ["攻擊", "血量", "爆擊"], layer3: ["攻擊", "防禦", "血量", "爆抗"] },
-            { name: "開琉", personality: "狂亂", race: "妖精", position: "前排", job: "輔助", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] }
+            { name: "寧琉", personality: "狂亂", race: "妖精", position: "前排", job: "輔助", layer1: ["攻擊", "防禦"], layer2: ["攻擊", "防禦", "血量"], layer3: ["攻擊", "血量", "爆擊", "爆抗"] }
         ];
         
         const LAYER_RULES = {
@@ -766,6 +788,7 @@
         };
         let isFilterOpen = true;
 
+        // 螢幕大於或等於 768px (平板/電腦) 預設為開啟；小於 768px (手機) 預設為關閉
         let isStatsOpen = window.innerWidth >= 768;
 
         let db = null, auth = null, currentUser = null;
@@ -784,6 +807,7 @@
             });
         }
 
+        // 啟動翻譯功能
         changeLanguage(currentLang);
 
         function toggleStatsPanel() {
@@ -807,6 +831,7 @@
             calculateStats();
         }
 
+        // 修改 OwnershipUI 來對應新的 char-avatar-container
         function updateOwnershipUI(charName) {
             const container = document.getElementById(`avatar_container_${charName}`);
             const fallAvatar = document.getElementById(`fall_av_${charName}`);
@@ -1285,6 +1310,9 @@
             applyFilterUI();
         }
 
+        // ==========================================
+        // 📊 Firebase 總次數更新機制
+        // ==========================================
         function updateVisitCount() {
             if (!db) return;
             const countRef = db.collection("metadata").doc("site_stats");
@@ -1381,6 +1409,7 @@
                 db = firebase.firestore();
                 auth = firebase.auth();
 
+                // 呼叫更新人次
                 updateVisitCount();
 
                 auth.onAuthStateChanged(user => {
@@ -1414,14 +1443,20 @@
             console.error("Firebase 初始化被阻擋:", e);
         }
 
+        // ==========================================
+        // 🌟 自動輪播定時器 (每 3 秒漸變切換)
+        // ==========================================
         setInterval(() => {
             document.body.classList.toggle('swap-avatars');
         }, 3000);
-
+        // ==========================================
+        // 🌟 跑馬燈智慧判斷 (字數過長才滾動)
+        // ==========================================
         function checkMarquee(card, isHover) {
             const box = card.querySelector('.marquee-box');
             const content = card.querySelector('.marquee-content');
             if (box && content) {
+                // 如果是滑鼠移入，且「文字實際寬度 (scrollWidth)」大於「容器寬度 (clientWidth)」，才掛上動畫
                 if (isHover && box.scrollWidth > box.clientWidth) {
                     content.style.animation = 'text-marquee 3.5s linear infinite alternate';
                 } else {
@@ -1431,44 +1466,62 @@
         }
     </script>
 
-    <div id="Joanne-container"></div>
+    <div class="social-fixed group">
+        <div id="socialMenu" class="social-menu group-hover:flex">
+            <a id="dynamicXLink" href="https://x.com/trickcal_TW" target="_blank" class="bg-sky-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-lg hover:bg-sky-600 transition" data-lang-key="x_label">台港澳服官方X</a>
+        </div>
+        <button class="bg-black text-white w-10 h-10 rounded-full shadow-xl flex items-center justify-center font-bold text-sm">X</button>
+    </div>
+    <div id="rim-live-container"></div>
+
 <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        // 確保 Spine 播放器腳本已成功載入
-        if (typeof spine !== 'undefined' && spine.SpinePlayer) {
-            new spine.SpinePlayer("Joanne-container", {
-                skelUrl: "./Joanne.skel",     // 👈 請替換為你實際的 .skel 檔案路徑
-                atlasUrl: "./Joanne.atlas",   // 👈 請替換為你實際的 .atlas 檔案路徑
-                animation: "idle",            // 預設播放的動作項目（若沒反應可嘗試改成 "wait" 或 "run"）
-                showControls: false,          // 隱藏下方的播放、暫停等控制列
-                alpha: true,                  // 啟用透明通道
-                backgroundColor: "#00000000", // 將背景設為完全透明
-                premultipliedAlpha: true,     // 嘟嘟臉模型一般使用 PMA 紋理，設為 true 避免邊緣出現黑邊
-                viewport: {
-                    x: 0,
-                    y: 0,
-                    width: 400,               // 骨骼視窗寬度調整
-                    height: 400,              // 骨骼視窗高度調整
-                    padLeft: "10%",
-                    padRight: "10%",
-                    padTop: "10%",
-                    padBottom: "10%",
-                    debugRender: false        // 設為 false 隱藏綠色骨骼線
-                },
-                success: function (player) {
-                    // 模型載入成功後，可以微調比例讓她在容器內完美顯示
-                    player.skeleton.scaleX = 0.4; 
-                    player.skeleton.scaleY = 0.4;
-                    // 如果位置歪了，可以透過這個微調 X、Y 軸偏移量
-                    player.skeleton.x = 0;
-                    player.skeleton.y = -50; 
-                }
-            });
-        } else {
-            console.warn("Spine Player 腳本載入失敗，請檢查 CDN 連線。");
+window.addEventListener('load', function() {
+    if (typeof spine === 'undefined') {
+        console.error("Spine library 未載入");
+        return;
+    }
+
+    new spine.SpinePlayer("rim-live-container", {
+        skelUrl: "Joanne.skel",      // Updated to your uploaded skeleton file
+        atlasUrl: "Joanne.atlas",    // Updated to your uploaded atlas file
+        alpha: true,                 
+        backgroundColor: "#00000000",
+        showControls: false,         
+        premultipliedAlpha: false,
+        
+        // You may need to adjust the skin and animation names 
+        // to match what is actually rigged inside Joanne.skel
+        // skin: "default",          
+        // animation: "animation_name", 
+        
+        viewport: { 
+            transitionTime: 0        
+        },
+        
+        success: function (player) {
+            console.log("Spine 載入成功！");
+            
+            // Check the console to see all available animations for Joanne
+            console.log("Available animations:", player.skeleton.data.animations.map(a => a.name));
+            
+            // Update this array with Joanne's actual animation names
+            const animations = ["anim_1", "anim_2", "anim_3"]; 
+            let currentIndex = 1; 
+
+            function playNextAnimation() {
+                if (animations.length === 0) return;
+                const nextAnim = animations[currentIndex % animations.length];
+                player.skeleton.setToSetupPose(); 
+                player.animationState.setAnimation(0, nextAnim, true);
+                currentIndex++;
+            }
+
+            // setInterval(playNextAnimation, 5000);
+        },
+        error: function (player, reason) {
+            console.error("Spine 渲染錯誤:", reason);
         }
     });
-</script>
-
+});
 </body>
 </html>
